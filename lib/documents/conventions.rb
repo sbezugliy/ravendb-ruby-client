@@ -14,17 +14,11 @@ module RavenDB
     @identity_parts_separator = "/".freeze
 
     class << self
-      attr_accessor :max_number_of_request_per_session
-      attr_accessor :request_timeout
-      attr_accessor :default_use_optimistic_concurrency
-      attr_accessor :max_length_of_query_using_get_url
-      attr_accessor :identity_parts_separator
+      attr_accessor :max_number_of_request_per_session, :request_timeout, :default_use_optimistic_concurrency, :max_length_of_query_using_get_url, :identity_parts_separator
     end
 
-    attr_accessor :set_id_only_if_property_is_defined, :disable_topology_updates, :serializers
-    attr_accessor :max_http_cache_size
-    attr_accessor :document_id_generator
-    attr_accessor :transform_class_collection_name_to_document_id_prefix
+    attr_accessor :set_id_only_if_property_is_defined, :disable_topology_updates, :serializers, :max_http_cache_size, :document_id_generator,
+                  :transform_class_collection_name_to_document_id_prefix
 
     def initialize
       @set_id_only_if_property_is_defined = false
@@ -123,8 +117,8 @@ module RavenDB
         @_document_id_resolvers.each do |resolver|
           begin
             found_id_property = resolver.call(
-              document_type: document_type,
-              document_class: document_class,
+              document_type:,
+              document_class:,
               document: document_instance
             )
           rescue StandardError
@@ -168,10 +162,10 @@ module RavenDB
       set_id_on_document(document, metadata["@id"])
 
       {
-        raw_entity: raw_entity,
-        document: document,
-        metadata: metadata,
-        original_metadata: original_metadata,
+        raw_entity:,
+        document:,
+        metadata:,
+        original_metadata:,
         document_type: doc_type
       }
     end
@@ -328,6 +322,7 @@ module RavenDB
 
     def collection_name(entity_or_klass)
       return nil if entity_or_klass.nil?
+
       klass = if entity_or_klass.is_a?(Class)
                 entity_or_klass
               else
@@ -375,6 +370,7 @@ module RavenDB
     def default_transform_collection_name_to_document_id_prefix(collection_name)
       upper_count = collection_name.chars.select { |x| x == x.upcase }.count
       return collection_name.downcase if upper_count <= 1
+
       collection_name
     end
   end

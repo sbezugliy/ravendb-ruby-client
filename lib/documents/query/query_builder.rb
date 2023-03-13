@@ -47,7 +47,7 @@ module RavenDB
 
     def using_default_operator(operator)
       unless @where_tokens.empty?
-        raise "Default operator can only be set "\
+        raise "Default operator can only be set " \
               "before any where clause is added."
       end
 
@@ -58,7 +58,7 @@ module RavenDB
     def raw_query(query)
       unless [@group_by_tokens, @order_by_tokens,
               @select_tokens, @where_tokens].all? { |tokens| tokens.empty? }
-        raise "You can only use RawQuery on a new query, "\
+        raise "You can only use RawQuery on a new query, " \
               "without applying any operations (such as Where, Select, OrderBy, GroupBy, etc)"
       end
 
@@ -120,9 +120,9 @@ module RavenDB
 
       unless field_or_params.is_a?(Hash)
         return where_equals(
-          parameter_name: parameter_name,
-          field_name: field_name,
-          exact: exact
+          parameter_name:,
+          field_name:,
+          exact:
         )
       end
 
@@ -145,9 +145,9 @@ module RavenDB
 
       unless field_or_params.is_a?(Hash)
         return where_not_equals(
-          parameter_name: parameter_name,
-          field_name: field_name,
-          exact: exact
+          parameter_name:,
+          field_name:,
+          exact:
         )
       end
 
@@ -450,7 +450,7 @@ module RavenDB
       fields = [field_name]
 
       if field_names.is_a?(Array)
-        fields = fields.concat(field_names)
+        fields.concat(field_names)
       end
 
       fields.each do |field|
@@ -527,7 +527,7 @@ module RavenDB
     end
 
     def spatial(field_name, shape_wkt_parameter_name_or_criteria,
-                relation = nil, dist_error_percent = nil)
+                relation = nil, dist_error_percent = nil, &)
       criteria = shape_wkt_parameter_name_or_criteria
       field_name = ensure_valid_field_name(field_name)
 
@@ -535,7 +535,7 @@ module RavenDB
       negate_if_needed
 
       if shape_wkt_parameter_name_or_criteria.is_a?(SpatialCriteria)
-        @where_tokens.add_last(criteria.to_query_token(field_name) { |parameter_name| yield parameter_name })
+        @where_tokens.add_last(criteria.to_query_token(field_name, &))
       else
         shape_wkt_parameter_name = shape_wkt_parameter_name_or_criteria
         relation = relation
@@ -565,7 +565,7 @@ module RavenDB
       end
 
       unless @current_clause_depth == 0
-        raise "A clause was not closed correctly within this query, current clause "\
+        raise "A clause was not closed correctly within this query, current clause " \
               "depth = #{@current_clause_depth}"
       end
 
@@ -700,7 +700,7 @@ module RavenDB
     def assert_no_raw_query
       return if @query_raw.nil?
 
-      raise "RawQuery was called, cannot modify this query by calling on operations that "\
+      raise "RawQuery was called, cannot modify this query by calling on operations that " \
             "would modify the query (such as Where, Select, OrderBy, GroupBy, etc)"
     end
 

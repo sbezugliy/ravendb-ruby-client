@@ -2,10 +2,8 @@ module RavenDB
   class RavenCommand
     ETAG_HEADER = "ETag".freeze
 
-    attr_accessor :result
-    attr_accessor :status_code
-    attr_reader :response_type
-    attr_reader :failed_nodes
+    attr_accessor :result, :status_code
+    attr_reader :response_type, :failed_nodes
 
     def initialize(end_point = nil, method = Net::HTTP::Get::METHOD, params = {}, payload = nil, headers = {})
       @end_point = end_point || ""
@@ -135,7 +133,7 @@ module RavenDB
           cache_response(cache, url, response, json)
         end
 
-        self.result = parse_response(json, from_cache: false, conventions: conventions)
+        self.result = parse_response(json, from_cache: false, conventions:)
         return :automatic
       else
         self.result = parse_response_raw(response)
@@ -189,7 +187,7 @@ module RavenDB
       end
 
       unless other_params.empty?
-        remove = remove.concat(other_params)
+        remove.concat(other_params)
       end
 
       remove.each { |param| @params.delete(param) }
@@ -200,7 +198,7 @@ module RavenDB
     end
 
     def path_with_params(end_point, params)
-      end_point += "?" + URI.encode_www_form(params) if params && !params.empty?
+      end_point += "?#{URI.encode_www_form(params)}" if params && !params.empty?
       end_point
     end
   end

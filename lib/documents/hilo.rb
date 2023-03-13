@@ -33,11 +33,9 @@ module RavenDB
 
     def return_unused_range
       @generators.each_value do |generator|
-        begin
-          generator.return_unused_range
-        rescue StandardError
-          nil
-        end
+        generator.return_unused_range
+      rescue StandardError
+        nil
       end
     end
   end
@@ -70,14 +68,14 @@ module RavenDB
 
     def try_request_next_range
       @generate_id_lock.synchronize do
-        if !@range.needs_new_range?
-          @range.increment
-        else
+        if @range.needs_new_range?
           begin
             @range = get_next_range
           rescue ConcurrencyException
             @range = try_request_next_range
           end
+        else
+          @range.increment
         end
 
         @range

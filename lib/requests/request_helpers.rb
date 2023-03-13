@@ -122,7 +122,7 @@ module RavenDB
       @script = script
     end
 
-    def to_json
+    def to_json(*_args)
       {
         "Script" => @script,
         "Values" => @values
@@ -131,8 +131,7 @@ module RavenDB
   end
 
   class NodeSelector
-    attr_reader :current_node_index
-    attr_reader :topology
+    attr_reader :current_node_index, :topology
 
     def initialize(request_executor, topology)
       @current_node_index = 0
@@ -245,13 +244,7 @@ module RavenDB
   end
 
   class NodeSelectorState
-    attr_accessor :topology
-    attr_accessor :current_node_index
-    attr_accessor :nodes
-    attr_accessor :failures
-    attr_accessor :fastest_records
-    attr_accessor :fastest
-    attr_accessor :speed_test_mode
+    attr_accessor :topology, :current_node_index, :nodes, :failures, :fastest_records, :fastest, :speed_test_mode
 
     def initialize(current_node_index, topology)
       self.topology = topology

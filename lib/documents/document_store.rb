@@ -134,7 +134,7 @@ module RavenDB
         request_executor = get_request_executor(session_database)
       end
 
-      session = DocumentSession.new(session_database, self, SecureRandom.uuid, request_executor, conventions: conventions)
+      session = DocumentSession.new(session_database, self, SecureRandom.uuid, request_executor, conventions:)
 
       if block_given?
         yield(session)
@@ -201,6 +201,7 @@ module RavenDB
       unless @_database.nil?
         return "#{@_urls.join(',')} (DB: #{@_database})"
       end
+
       @_urls.join(",")
     end
 
@@ -215,8 +216,8 @@ module RavenDB
     def assert_configure
       return if @_initialized
 
-      raise "You cannot open a session or access the database commands"\
-" before initializing the document store. Did you forget calling configure ?"
+      raise "You cannot open a session or access the database commands " \
+            "before initializing the document store. Did you forget calling configure ?"
     end
 
     def create_request_executor(database = nil, for_single_node = nil)

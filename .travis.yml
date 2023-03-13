@@ -4,6 +4,7 @@ language: ruby
 rvm:
   - "2.4.3"
   - "2.5.0"
+  - "3.2.1"
 env:
   global:
     - CERTIFICATE=./certs/ruby.pem

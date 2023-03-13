@@ -1,6 +1,6 @@
 module RavenDB
   class InMemoryDocumentSessionOperations
-    attr_reader :included_documents_by_id
+    attr_reader :included_documents_by_id, :deferred_commands, :deferred_commands_map, :_save_changes_options
 
     def initialize(conventions:)
       @included_documents_by_id = {}
@@ -16,6 +16,7 @@ module RavenDB
 
     def get_document_id(instance)
       return nil if instance.nil?
+
       documents_by_entity[instance]&.id
     end
 
@@ -34,6 +35,7 @@ module RavenDB
     def check_if_id_already_included(ids, includes)
       ids.each do |id|
         next if @known_missing_ids.include?(id)
+
         document_info = @documents_by_id[id]
         if document_info.nil?
           document_info = @included_documents_by_id[id]
@@ -41,6 +43,7 @@ module RavenDB
         end
         return false if document_info.entity.nil?
         next if includes.nil?
+
         includes.each do |_include|
           has_all = [true]
           # does nothing in java
@@ -59,6 +62,7 @@ module RavenDB
 
     def register_includes(includes)
       return if includes.nil?
+
       includes.compact.each do |_field_name, field_value|
         json = field_value
         new_document_info = DocumentInfo.new(json)
@@ -69,6 +73,7 @@ module RavenDB
 
     def register_missing_includes(results, _includes, include_paths)
       return if include_paths.nil? || include_paths.empty?
+
       results.each do |_result|
         include_paths.each do |include|
           next if include == "id()" # TODO: constant
@@ -78,7 +83,7 @@ module RavenDB
     end
 
     # TODO
-    def convert_to_entity(entity_type:, id: nil, document:)
+    def convert_to_entity(entity_type:, document:, id: nil)
       conventions.convert_to_document(document, entity_type, {})[:document]
     end
 
@@ -92,10 +97,11 @@ module RavenDB
       if id.empty?
         return # TODO: deserialize_from_transformer(entity_type, nil, document)
       end
+
       doc_info = @documents_by_id[id]
       unless doc_info.nil?
         if doc_info.entity.nil?
-          doc_info.entity = convert_to_entity(entity_type: entity_type, id: id, document: document)
+          doc_info.entity = convert_to_entity(entity_type:, id:, document:)
         end
         unless no_tracking
           @included_documents_by_id.delete(id)
@@ -106,7 +112,7 @@ module RavenDB
       doc_info = @included_documents_by_id[id]
       unless doc_info.nil?
         if doc_info.entity.nil?
-          doc_info.entity = convert_to_entity(entity_type: entity_type, id: id, document: document)
+          doc_info.entity = convert_to_entity(entity_type:, id:, document:)
         end
         unless no_tracking
           @included_documents_by_id.delete(id)
@@ -115,11 +121,12 @@ module RavenDB
         end
         return doc_info.entity
       end
-      entity = convert_to_entity(entity_type: entity_type, id: id, document: document)
+      entity = convert_to_entity(entity_type:, id:, document:)
       change_vector = metadata.get(constants.documents.metadata.change_vector).as_text
       if change_vector.nil?
         raise "Document #{id} must have Change Vector"
       end
+
       unless no_tracking
         new_document_info = DocumentInfo.new
         new_document_info.id = id
@@ -135,6 +142,7 @@ module RavenDB
 
     def delete(entity_or_id, expected_change_vector: nil)
       raise ArgumentError, "Entity/ID cannot be null" if entity_or_id.nil?
+
       if entity_or_id.is_a?(String)
         delete_by_id(entity_or_id, expected_change_vector)
       else
@@ -149,6 +157,7 @@ module RavenDB
       if value.nil?
         raise "#{entity} is not associated with the session, cannot delete unknown entity instance"
       end
+
       @deleted_entities << entity
       @included_documents_by_id.delete(value.id)
       @known_missing_ids << value.id
@@ -156,7 +165,7 @@ module RavenDB
 
     def convert_to_json(entity_type:, document:)
       metadata = document.instance_variable_get("@metadata")
-      json = JsonSerializer.to_json(document, conventions, encode_types: true, metadata: metadata)
+      json = JsonSerializer.to_json(document, conventions, encode_types: true, metadata:)
       json["entity"]&.delete("id")
       json
     end
@@ -169,6 +178,7 @@ module RavenDB
         if !document_info.entity.nil? && entity_changed(new_obj, document_info, nil)
           raise "Can't delete changed entity using identifier. Use delete(entity) instead."
         end
+
         unless document_info.entity.nil?
           @documents_by_entity.delete(document_info.entity)
         end
@@ -247,6 +257,7 @@ module RavenDB
 
     def store_internal(entity, change_vector, id, force_concurrency_check)
       raise ArgumentError, "Entity cannot be null" if entity.nil?
+
       value = @documents_by_entity[entity]
       unless value.nil?
         value.change_vector ||= change_vector
@@ -264,6 +275,7 @@ module RavenDB
       if @deleted_entities.include?(entity)
         raise "Can't store object, it was already deleted in this session. Document id: #{id}"
       end
+
       assert_no_non_unique_instance(entity, id)
       metadata = entity.instance_variable_get("@metadata") || {}
       metadata[COLLECTION] = @request_executor.conventions.collection_name(entity)
@@ -288,12 +300,6 @@ module RavenDB
     end
 
     public
-
-    attr_reader :deferred_commands
-
-    attr_reader :deferred_commands_map
-
-    attr_reader :_save_changes_options
 
     def prepare_for_save_changes
       result = SaveChangesData.new(self)
@@ -335,15 +341,8 @@ module RavenDB
       @deleted_entities.each do |deleted_entity|
         document_info = @documents_by_entity[deleted_entity]
         next if document_info.nil?
-        if !changes.nil?
-          doc_changes = ArrayList.new
-          change = DocumentsChanges.new
-          change.field_new_value = ""
-          change.field_old_value = ""
-          change.change = documents_changes.change_type.document_deleted
-          doc_changes.add(change)
-          changes.put(document_info.id, doc_changes)
-        else
+
+        if changes.nil?
           command = result.deferred_commands_map[IdTypeAndName.new(document_info.id, :client_any_command, nil)]
           unless command.nil?
             throw_invalid_deleted_document_with_deferred_command(command)
@@ -362,6 +361,14 @@ module RavenDB
           # before_delete_event_args = BeforeDeleteEventArgs.new(self, document_info.id, document_info.entity)
           # event_helper.invoke(@on_before_delete, self, before_delete_event_args) # TODO
           result.session_commands << DeleteCommandData.new(document_info.id, change_vector)
+        else
+          doc_changes = ArrayList.new
+          change = DocumentsChanges.new
+          change.field_new_value = ""
+          change.field_old_value = ""
+          change.change = documents_changes.change_type.document_deleted
+          doc_changes.add(change)
+          changes.put(document_info.id, doc_changes)
         end
         @deleted_entities.clear if changes.nil?
       end
@@ -370,9 +377,11 @@ module RavenDB
     def prepare_for_entities_puts(result)
       @documents_by_entity.each do |key, value|
         next if value.ignore_changes?
+
         dirty_metadata = InMemoryDocumentSessionOperations.update_metadata_modifications(value)
         document = convert_entity_to_json(key, value) # TODO
         next if !entity_changed(document, value, nil) && !dirty_metadata
+
         command = result.deferred_commands_map[IdTypeAndName.new(value.id, :client_not_attachment, nil)]
         unless command.nil?
           throw_invalid_modified_document_with_deferred_command(command)

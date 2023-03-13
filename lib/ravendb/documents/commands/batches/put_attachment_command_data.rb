@@ -11,12 +11,7 @@ module RavenDB
       self.change_vector = change_vector
     end
 
-    attr_reader :id
-    attr_reader :name
-    attr_reader :stream
-    attr_reader :change_vector
-    attr_reader :content_type
-    attr_reader :type
+    attr_reader :id, :name, :stream, :change_vector, :content_type, :type
 
     def serialize(_conventions)
       {

@@ -22,7 +22,7 @@ module RavenDB
       end_point = "/databases/#{server_node.database}/docs?"
 
       if @includes
-        end_point += "&" + URI.encode_www_form("include" => @includes)
+        end_point += "&#{URI.encode_www_form('include' => @includes)}"
       end
 
       if multi_load
@@ -38,7 +38,7 @@ module RavenDB
         end
       end
 
-      end_point += "&" + URI.encode_www_form("id" => (multi_load ? ids : first_id))
+      end_point += "&#{URI.encode_www_form('id' => (multi_load ? ids : first_id))}"
 
       Net::HTTP::Get.new(end_point)
     end
@@ -57,8 +57,8 @@ module RavenDB
       end
 
       unless response.body
-        raise ErrorResponseException, "Failed to load document from the database "\
-  "please check the connection to the server"
+        raise ErrorResponseException, "Failed to load document from the database " \
+                                      "please check the connection to the server"
       end
 
       result

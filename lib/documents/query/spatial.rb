@@ -32,13 +32,13 @@ module RavenDB
       @distance_error_pct = dist_error_percent
     end
 
-    def get_shape_token(&spatial_parameter_name_generator)
+    def get_shape_token(&)
       raise NotImplementedError, "You should implement get_shape_token method"
     end
 
-    def to_query_token(field_name, &spatial_parameter_name_generator)
+    def to_query_token(field_name, &)
       relation_token = nil
-      shape_token = get_shape_token(&spatial_parameter_name_generator)
+      shape_token = get_shape_token(&)
 
       case @relation
       when SpatialRelation::INTERSECTS
@@ -65,7 +65,7 @@ module RavenDB
       @radius_units = radius_units || SpatialUnits::KILOMETERS
     end
 
-    def get_shape_token(&spatial_parameter_name_generator)
+    def get_shape_token(&)
       ShapeToken.circle(
         yield(@radius),
         yield(@latitude),
@@ -82,7 +82,7 @@ module RavenDB
       @shape_wkt = shape_wkt
     end
 
-    def get_shape_token(&spatial_parameter_name_generator)
+    def get_shape_token(&)
       ShapeToken.wkt(yield(@shape_wkt))
     end
   end

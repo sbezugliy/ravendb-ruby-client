@@ -9,6 +9,7 @@ module RavenDB
       @_session_commands_count = result.session_commands.size
       result.session_commands.concat(result.deferred_commands.to_a)
       return nil if result.session_commands.empty?
+
       @_session.increment_requests_count!
       @_entities = result.entities
       NewBatchCommand.new(@_session.conventions, result.session_commands, result.options)
@@ -29,19 +30,24 @@ module RavenDB
       @_session_commands_count.times do |i|
         batch_result = result_results[i]
         raise "IllegalArgumentException" if batch_result.nil?
+
         type = batch_result["Type"]
         next unless type == "PUT"
+
         entity = @_entities[i]
         document_info = @_session.documents_by_entity[entity]
         next if document_info.nil?
+
         change_vector = batch_result[CHANGE_VECTOR]
         if change_vector.nil?
           raise  "PUT response is invalid. @change-vector is missing on #{document_info.id}"
         end
+
         id = batch_result[ID]
         if id.nil?
           raise  "PUT response is invalid. @id is missing on #{document_info.id}"
         end
+
         batch_result.each do |property_name, property_value|
           unless property_name == "Type"
             document_info.metadata[property_name] = property_value

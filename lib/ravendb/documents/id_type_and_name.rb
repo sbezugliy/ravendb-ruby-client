@@ -1,8 +1,6 @@
 module RavenDB
   class IdTypeAndName
-    attr_accessor :id
-    attr_accessor :type
-    attr_accessor :name
+    attr_accessor :id, :type, :name
 
     def ==(other)
       id == other.id &&

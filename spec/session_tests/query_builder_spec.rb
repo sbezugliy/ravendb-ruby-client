@@ -46,7 +46,7 @@ RSpec.describe RavenDB::QueryBuilder, rdbc_88: true do
     index_query = query.get_index_query
 
     expect(index_query.query).to eq("from Users where Active = $p0")
-    expect(index_query.query_parameters[:p0]).to eq(false)
+    expect(index_query.query_parameters[:p0]).to be(false)
   end
 
   it "can understand not equal" do
@@ -58,7 +58,7 @@ RSpec.describe RavenDB::QueryBuilder, rdbc_88: true do
     index_query = query.get_index_query
 
     expect(index_query.query).to eq("from Users where Active != $p0")
-    expect(index_query.query_parameters[:p0]).to eq(false)
+    expect(index_query.query_parameters[:p0]).to be(false)
   end
 
   it "can understand in" do

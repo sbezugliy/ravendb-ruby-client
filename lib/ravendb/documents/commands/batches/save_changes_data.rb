@@ -1,10 +1,6 @@
 module RavenDB
   class SaveChangesData
-    attr_reader :deferred_commands
-    attr_reader :session_commands
-    attr_reader :entities
-    attr_reader :options
-    attr_reader :deferred_commands_map
+    attr_reader :deferred_commands, :session_commands, :entities, :options, :deferred_commands_map
 
     def initialize(session)
       @deferred_commands = session.deferred_commands.dup

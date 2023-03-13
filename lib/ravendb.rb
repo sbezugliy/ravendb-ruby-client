@@ -1,5 +1,4 @@
 require "logger"
-require "set"
 require "uri"
 require "json"
 require "date"
@@ -37,7 +36,7 @@ module RavenDB
     attr_writer :logger
 
     def logger
-      @logger ||= Logger.new(STDERR).tap do |log|
+      @logger ||= Logger.new($stderr).tap do |log|
         log.progname = name
       end
     end

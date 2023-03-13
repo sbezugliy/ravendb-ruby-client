@@ -1,10 +1,11 @@
 module RavenDB
   class GetDocumentsCommand < RavenCommand
-    def initialize(ids: nil, includes: nil, start_with: nil, start_after: nil, matches: nil, exclude: nil, start: nil, page_size: nil, metadata_only:)
+    def initialize(metadata_only:, ids: nil, includes: nil, start_with: nil, start_after: nil, matches: nil, exclude: nil, start: nil, page_size: nil)
       super()
       if start_with.nil? && (ids.nil? || ids.empty?)
         raise ArgumentError, "Please supply at least one id or startWith cannot be null"
       end
+
       @_ids = ids
       @_includes = includes
       @_start_with = start_with
@@ -58,8 +59,8 @@ module RavenDB
       end
 
       unless response.body
-        raise ErrorResponseException, "Failed to load document from the database "\
-  "please check the connection to the server"
+        raise ErrorResponseException, "Failed to load document from the database " \
+                                      "please check the connection to the server"
       end
 
       result

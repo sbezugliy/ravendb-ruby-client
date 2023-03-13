@@ -23,7 +23,7 @@ module RavenDB
       result = "Map"
 
       if @_name&.start_with?("Auto/")
-        result = "Auto" + result
+        result = "Auto#{result}"
       end
 
       if @reduce > 0
@@ -49,7 +49,7 @@ module RavenDB
       @maps.push(value)
     end
 
-    def to_json
+    def to_json(*_args)
       fields_json = {}
 
       @fields.each do |field, definition|
@@ -80,7 +80,7 @@ module RavenDB
       @analyzer = analyzer
     end
 
-    def to_json
+    def to_json(*_args)
       storage = @storage ? "Yes" : "No" unless @storage.nil?
 
       {

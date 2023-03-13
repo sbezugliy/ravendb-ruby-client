@@ -30,9 +30,11 @@ module RavenDB
         range = @_range
         id = range.current.increment
         return id if id <= range.max
+
         @mutex.synchronize do
           id = range.current.value
           return id if id <= range.max
+
           next_range
         end
       end
@@ -56,9 +58,7 @@ module RavenDB
     end
 
     class RangeValue
-      attr_accessor :min
-      attr_accessor :max
-      attr_accessor :current
+      attr_accessor :min, :max, :current
 
       def initialize(min, max)
         @min = min

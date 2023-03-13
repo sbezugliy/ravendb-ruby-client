@@ -11,7 +11,7 @@ RSpec.describe RavenDB::RequestExecutor, database: true, executor: true, rdbc_14
 
     expect do
       database_names_operation = RavenDB::GetDatabaseNamesOperation.new(start: 0, page_size: 20)
-      command = database_names_operation.get_command(conventions: conventions)
+      command = database_names_operation.get_command(conventions:)
       executor.execute(command)
     end.to raise_error(RavenDB::DatabaseDoesNotExistException)
   end
@@ -21,7 +21,7 @@ RSpec.describe RavenDB::RequestExecutor, database: true, executor: true, rdbc_14
 
     50.times do
       database_names_operation = RavenDB::GetDatabaseNamesOperation.new(start: 0, page_size: 20)
-      command = database_names_operation.get_command(conventions: conventions)
+      command = database_names_operation.get_command(conventions:)
       executor.execute(command)
     end
   end
@@ -30,7 +30,7 @@ RSpec.describe RavenDB::RequestExecutor, database: true, executor: true, rdbc_14
     executor = create_executor
 
     database_names_operation = RavenDB::GetDatabaseNamesOperation.new(start: 0, page_size: 20)
-    command = database_names_operation.get_command(conventions: conventions)
+    command = database_names_operation.get_command(conventions:)
     executor.execute(command)
 
     db_names = command.result
@@ -84,7 +84,7 @@ RSpec.describe RavenDB::RequestExecutor, database: true, executor: true, rdbc_14
     prefix = default_url.downcase.split("//")[0]
 
     initial_urls = ["#{prefix}//no_such_host:8080", "#{prefix}//another_offline:8080", url]
-    executor = create_executor(initial_urls: initial_urls)
+    executor = create_executor(initial_urls:)
 
     command = RavenDB::GetNextOperationIdCommand.new
     executor.execute(command)
@@ -102,7 +102,7 @@ RSpec.describe RavenDB::RequestExecutor, database: true, executor: true, rdbc_14
     expect do
       # don't even start server
       initial_urls = ["http://no_such_host:8081"]
-      executor = create_executor(initial_urls: initial_urls, database_name: "db1")
+      executor = create_executor(initial_urls:, database_name: "db1")
       command =  RavenDB::GetNextOperationIdCommand.new
 
       executor.execute(command)

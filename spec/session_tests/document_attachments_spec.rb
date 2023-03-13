@@ -14,7 +14,7 @@ RSpec.describe RavenDB::GetAttachmentOperation, database: true do
             document_id: product.id,
             name: "1x1.gif",
             stream: [ATTACHMENT].pack("H*"),
-            content_type:  "image/gif"
+            content_type: "image/gif"
           ))
       end.not_to raise_error
     end

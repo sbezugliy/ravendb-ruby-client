@@ -212,8 +212,8 @@ RSpec.describe RavenDB::DocumentQuery, database: true do
                 .wait_for_non_stale_results
                 .all
 
-      expect(results.first).to be_kind_of(Company)
-      expect(results.first.product).to be_kind_of(Product)
+      expect(results.first).to be_a(Company)
+      expect(results.first.product).to be_a(Product)
     end
   end
 
@@ -325,7 +325,7 @@ RSpec.describe RavenDB::DocumentQuery, database: true do
     fields.each do |field|
       query.each do |keyword|
         search_in.push(
-          keyword: keyword,
+          keyword:,
           sample: last_fm.instance_variable_get("@#{field}")
         )
       end

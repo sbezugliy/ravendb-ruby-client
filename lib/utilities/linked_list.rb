@@ -81,10 +81,10 @@ module RavenDB
       self
     end
 
-    def each
+    def each(&)
       return unless block_given?
 
-      @items.each { |linked_list_item| yield(linked_list_item) }
+      @items.each(&)
     end
   end
 end

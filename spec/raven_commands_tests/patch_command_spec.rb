@@ -9,7 +9,7 @@ RSpec.describe RavenDB::PatchRequest, database: true, database_indexes: true, rd
         "@collection" => "Products"
       }
     }
-    request_executor.execute(RavenDB::PutDocumentCommand.new(id: ID, document: document))
+    request_executor.execute(RavenDB::PutDocumentCommand.new(id: ID, document:))
     command = RavenDB::GetDocumentCommand.new(ID)
     request_executor.execute(command)
     result = command.result
@@ -22,7 +22,7 @@ RSpec.describe RavenDB::PatchRequest, database: true, database_indexes: true, rd
     expect(result).to include(:Status)
     expect(result).to include(:Document)
     expect(result[:Status]).to eq(RavenDB::PatchStatus::PATCHED)
-    expect(result[:Document]).to be_kind_of(Product)
+    expect(result[:Document]).to be_a(Product)
     expect(result[:Document].name).to eq("testing")
   end
 

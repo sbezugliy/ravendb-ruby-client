@@ -42,7 +42,7 @@ RSpec.describe RavenDB::DocumentSession, database: true do
       products = session.load_new(Product, ["Products/101", "Products/10", "Products/101"])
 
       expect(products.size).to eq(2)
-      products.each { |product| expect(product.nil?).to eq(false) }
+      products.each { |product| expect(product.nil?).to be(false) }
     end
   end
 
@@ -50,7 +50,7 @@ RSpec.describe RavenDB::DocumentSession, database: true do
     store.open_session do |session|
       product = session.load_new(Product, "Products/101")
 
-      expect(product).to be_kind_of(Product)
+      expect(product).to be_a(Product)
       expect(product.instance_variable_get("@metadata")["Raven-Ruby-Type"]).to eq("Product")
     end
   end
@@ -59,8 +59,8 @@ RSpec.describe RavenDB::DocumentSession, database: true do
     store.open_session do |session|
       company = session.load_new(Company, "Companies/1")
 
-      expect(company).to be_kind_of(Company)
-      expect(company.product).to be_kind_of(Product)
+      expect(company).to be_a(Company)
+      expect(company.product).to be_a(Product)
       expect(company.product.name).to eq("testing_nested")
     end
   end

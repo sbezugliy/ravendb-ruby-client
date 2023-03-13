@@ -10,7 +10,7 @@ module RavenDB
       if server_node.url.downcase.include?(".fiddler")
         # we want to keep the '.fiddler' stuff there so we'll keep tracking request
         # so we are going to ask the server to respect it
-        end_point += "&localUrl=" + CGI.escape(node.url)
+        end_point += "&localUrl=#{CGI.escape(node.url)}"
       end
 
       Net::HTTP::Get.new(end_point)

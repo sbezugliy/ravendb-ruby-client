@@ -57,11 +57,11 @@ module RavenDB
       {
         stream: attachment,
         attachment_details: {
-          content_type: content_type,
+          content_type:,
           name: @_name,
-          hash: hash,
-          size: size,
-          change_vector: change_vector,
+          hash:,
+          size:,
+          change_vector:,
           document_id: @_document_id
         }
       }

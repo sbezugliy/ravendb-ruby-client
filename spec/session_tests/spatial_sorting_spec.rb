@@ -17,16 +17,16 @@ RSpec.describe RavenDB::SpatialCriteria, database: true, rdbc_145: true do
     index_map = "from e in docs.Shops select new { e.venue, coordinates = CreateSpatialField(e.latitude, e.longitude) }"
     index_definition = RavenDB::IndexDefinition.new(
       name: "eventsByLatLng",
-      index_map: index_map,
-      fields: fields
+      index_map:,
+      fields:
     )
     store.operations.send(RavenDB::PutIndexesOperation.new(index_definition))
 
     index_map = "from e in docs.Shops select new { e.venue, mySpacialField = CreateSpatialField(e.latitude, e.longitude) }"
     index_definition2 = RavenDB::IndexDefinition.new(
       name: "eventsByLatLngWSpecialField",
-      index_map: index_map,
-      fields: fields
+      index_map:,
+      fields:
     )
     store.operations.send(RavenDB::PutIndexesOperation.new(index_definition2))
 

@@ -31,14 +31,14 @@ module RavenDB
       end
 
       new(
-        session: session,
-        request_executor: request_executor,
-        collection: collection,
-        index_name: index_name,
+        session:,
+        request_executor:,
+        collection:,
+        index_name:,
         document_type_or_class: document_type,
-        nested_object_types: nested_object_types,
-        with_statistics: with_statistics,
-        index_query_options: index_query_options
+        nested_object_types:,
+        with_statistics:,
+        index_query_options:
       )
     end
 
@@ -56,12 +56,12 @@ module RavenDB
       @take = nil
       @skip = nil
 
-      if !index_name.nil?
-        @collection_name = nil
-        @index_name = index_name
-      else
+      if index_name.nil?
         @index_name = nil
         @collection_name = collection || "@all_docs"
+      else
+        @collection_name = nil
+        @index_name = index_name
       end
 
       if !document_type_or_class.nil?
@@ -98,7 +98,7 @@ module RavenDB
 
     def wait_for_non_stale_results_as_of(cut_off_etag, wait_timeout = nil)
       @index_query_options = @index_query_options.merge(
-        cut_off_etag: cut_off_etag,
+        cut_off_etag:,
         wait_for_non_stale_results: true,
         wait_for_non_stale_results_timeout: wait_timeout || IndexQuery::DEFAULT_TIMEOUT
       )
@@ -364,9 +364,9 @@ module RavenDB
 
       if field_name.is_a?(String)
         return where_equals(
-          field_name: field_name,
-          value: value,
-          exact: exact
+          field_name:,
+          value:,
+          exact:
         )
       end
 
@@ -382,9 +382,9 @@ module RavenDB
 
       if field_name.is_a?(String)
         return where_not_equals(
-          field_name: field_name,
-          value: value,
-          exact: exact
+          field_name:,
+          value:,
+          exact:
         )
       end
 
@@ -421,8 +421,8 @@ module RavenDB
 
     def where_starts_with(field_name, value)
       transformed_value = transform_value(
-        field_name: field_name,
-        value: value,
+        field_name:,
+        value:,
         allow_wildcards: true
       )
 
@@ -432,8 +432,8 @@ module RavenDB
 
     def where_ends_with(field_name, value)
       transformed_value = transform_value(
-        field_name: field_name,
-        value: value,
+        field_name:,
+        value:,
         allow_wildcards: true
       )
 
@@ -447,17 +447,17 @@ module RavenDB
 
       unless from.nil?
         transformed_from = transform_value(
-          field_name: field_name,
+          field_name:,
           value: from,
-          exact: exact
+          exact:
         )
       end
 
       unless to.nil?
         transformed_to = transform_value(
-          field_name: field_name,
+          field_name:,
           value: to,
-          exact: exact
+          exact:
         )
       end
 
@@ -474,9 +474,9 @@ module RavenDB
 
       unless value.nil?
         transformed_value = transform_value(
-          field_name: field_name,
-          value: value,
-          exact: exact
+          field_name:,
+          value:,
+          exact:
         )
       end
 
@@ -489,9 +489,9 @@ module RavenDB
 
       unless value.nil?
         transformed_value = transform_value(
-          field_name: field_name,
-          value: value,
-          exact: exact
+          field_name:,
+          value:,
+          exact:
         )
       end
 
@@ -504,9 +504,9 @@ module RavenDB
 
       unless value.nil?
         transformed_value = transform_value(
-          field_name: field_name,
-          value: value,
-          exact: exact
+          field_name:,
+          value:,
+          exact:
         )
       end
 
@@ -519,9 +519,9 @@ module RavenDB
 
       unless value.nil?
         transformed_value = transform_value(
-          field_name: field_name,
-          value: value,
-          exact: exact
+          field_name:,
+          value:,
+          exact:
         )
       end
 
@@ -538,7 +538,7 @@ module RavenDB
     def where_regex(field_name, pattern)
       where_params = {
         value: pattern,
-        field_name: field_name
+        field_name:
       }
 
       parameter = add_query_parameter(transform_value(where_params))
@@ -644,7 +644,7 @@ module RavenDB
       fields = [field_name]
 
       unless field_names.empty?
-        fields = fields.concat(field_names)
+        fields.concat(field_names)
       end
 
       @builder.send(:group_by, *fields)
@@ -753,7 +753,7 @@ module RavenDB
              value.is_a?(Date) || value.is_a?(DateTime)
 
         raise ArgumentError,
-              "Invalid value passed to query condition. "\
+              "Invalid value passed to query condition. " \
               "Only integer / number / string / dates / bools and nil values are supported"
       end
 
@@ -766,8 +766,8 @@ module RavenDB
 
       unpacked.each do |value|
         nested_where_params = {
-          field_name: field_name,
-          value: value,
+          field_name:,
+          value:,
           allow_wildcards: true
         }
 

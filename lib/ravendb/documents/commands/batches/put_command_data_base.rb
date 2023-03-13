@@ -1,13 +1,10 @@
 module RavenDB
   class PutCommandDataBase
-    attr_reader :id
-    attr_reader :name
-    attr_reader :change_vector
-    attr_reader :document
-    attr_reader :type
+    attr_reader :id, :name, :change_vector, :document, :type
 
     def initialize(id, change_vector, document)
       raise ArgumentError, "Document cannot be null" if document.nil?
+
       @id = id
       @change_vector = change_vector
       @document = document

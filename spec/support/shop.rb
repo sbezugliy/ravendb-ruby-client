@@ -1,7 +1,5 @@
 class Shop
-  attr_accessor :id
-  attr_accessor :latitude
-  attr_accessor :longitude
+  attr_accessor :id, :latitude, :longitude
 
   def initialize(id = nil, latitude = nil, longitude = nil)
     @id = id

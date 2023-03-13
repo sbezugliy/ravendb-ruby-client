@@ -1,7 +1,5 @@
 class BeforeDeleteEventArgs < EventArgs
-  attr_reader :session
-  attr_reader :document_id
-  attr_reader :entity
+  attr_reader :session, :document_id, :entity
 
   def initialize(session, document_id, entity)
     @session = session

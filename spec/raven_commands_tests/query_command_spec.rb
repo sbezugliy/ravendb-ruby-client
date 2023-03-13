@@ -9,7 +9,7 @@ RSpec.describe RavenDB::QueryCommand, database: true, database_indexes: true do
         "@collection": "Products"
       }
     }
-    request_executor.execute(RavenDB::PutDocumentCommand.new(id: "Products/10", document: document))
+    request_executor.execute(RavenDB::PutDocumentCommand.new(id: "Products/10", document:))
 
     @_conventions = store.conventions
     @_index_query = RavenDB::IndexQuery.new(query, {}, nil, nil, wait_for_non_stale_results: true)
@@ -29,7 +29,7 @@ RSpec.describe RavenDB::QueryCommand, database: true, database_indexes: true do
     request_executor.execute(command)
     result = command.result
 
-    expect(result["Results"].first.key?("Name")).to eq(false)
+    expect(result["Results"].first.key?("Name")).to be(false)
   end
 
   it "queries only documents" do
@@ -38,7 +38,7 @@ RSpec.describe RavenDB::QueryCommand, database: true, database_indexes: true do
     request_executor.execute(command)
     result = command.result
 
-    expect(result["Results"].first.key?("@metadata")).to eq(false)
+    expect(result["Results"].first.key?("@metadata")).to be(false)
   end
 
   it "fails with no existing index" do

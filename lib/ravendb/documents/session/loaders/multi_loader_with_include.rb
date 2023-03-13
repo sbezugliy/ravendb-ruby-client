@@ -11,7 +11,7 @@ module RavenDB
     end
 
     def load(klass, ids)
-      @session.load_internal(klass: klass, ids: ids, includes: @includes)
+      @session.load_internal(klass:, ids:, includes: @includes)
     end
   end
 end

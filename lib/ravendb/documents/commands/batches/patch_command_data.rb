@@ -10,7 +10,7 @@ module RavenDB
       @additional_data = nil
     end
 
-    def to_json
+    def to_json(*_args)
       json = super().merge(
         "Patch" => @scripted_patch.to_json,
         "DebugMode" => @debug_mode

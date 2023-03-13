@@ -4,7 +4,7 @@ module RavenDB
       indexes = indexes_to_add.is_a?(Array) ? indexes_to_add : [indexes_to_add]
 
       if more_indexes_to_add.is_a?(Array) && !more_indexes_to_add.empty?
-        indexes = indexes.concat(more_indexes_to_add)
+        indexes.concat(more_indexes_to_add)
       end
 
       super()

@@ -29,7 +29,7 @@ module RavenDB
     end
 
     def parse_response(json, from_cache:, conventions: nil)
-      @mapper.read_value(json, PutResult, conventions: conventions)
+      @mapper.read_value(json, PutResult, conventions:)
     end
 
     def read_request?
@@ -41,13 +41,12 @@ module RavenDB
     def check_response(response)
       return if response.body
 
-      raise ErrorResponseException, "Failed to store document to the database "\
-        "please check the connection to the server"
+      raise ErrorResponseException, "Failed to store document to the database " \
+                                    "please check the connection to the server"
     end
   end
 
   class PutResult
-    attr_accessor :id
-    attr_accessor :change_vector
+    attr_accessor :id, :change_vector
   end
 end

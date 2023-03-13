@@ -32,10 +32,8 @@ module RavenDB
       SocketError
     ].freeze
 
-    attr_reader :database_name
-    attr_accessor :request_post_processor
-    attr_accessor :certificate
-    attr_reader :conventions
+    attr_reader :database_name, :conventions
+    attr_accessor :request_post_processor, :certificate
 
     def initialize(database_name:, conventions: nil, initial_urls: [], without_topology: false, auth_options: nil,
                    topology_etag: 0, single_node_topology: nil, disable_configuration_updates: false)
@@ -90,16 +88,15 @@ module RavenDB
       end
     end
 
-    def synchronized
-      @self_lock.synchronize do
-        yield
-      end
+    def synchronized(&)
+      @self_lock.synchronize(&)
     end
 
     def self.valid_url?(url)
       uri = URI.parse(url)
       return false unless uri.is_a?(URI::HTTP)
       return false unless uri.host
+
       true
     rescue URI::InvalidURIError
       false
@@ -109,56 +106,57 @@ module RavenDB
       require_https = !certificate.nil?
       clean_urls = urls.map do |url|
         raise "The url '#{url}' is not valid." unless valid_url?(url)
+
         require_https |= url.start_with?("https://")
         url.gsub(/\/+$/, "")
       end
       return clean_urls unless require_https
+
       urls.each do |url|
         next unless url.start_with?("http://")
         unless certificate.nil?
           raise "The url '#{url}' is using HTTP, but a certificate is specified, which require us to use HTTPS."
         end
+
         raise "The url '#{url}' is using HTTP, but other urls are using HTTPS, and mixing of HTTP and HTTPS is not allowed."
       end
       clean_urls
     end
 
     def first_topology_update(input_urls:)
-      initial_urls = RequestExecutor.validate_urls(urls: input_urls, certificate: certificate)
+      initial_urls = RequestExecutor.validate_urls(urls: input_urls, certificate:)
 
       func = lambda do
         list = {}
 
         return if initial_urls.any? do |url|
-          begin
-            server_node = ServerNode.new(url, database_name)
+          server_node = ServerNode.new(url, database_name)
 
-            update_topology_async(node: server_node).value!
+          update_topology_async(node: server_node).value!
 
-            initialize_update_topology_timer
+          initialize_update_topology_timer
 
-            @_topology_taken_from_node = server_node
+          @_topology_taken_from_node = server_node
 
-            true
-          rescue AuthorizationException
-            raise
-          rescue DatabaseDoesNotExistException => e
-            RavenDB.logger.warn(e)
-            # Will happen on all node in the cluster,
-            # so errors immediately
+          true
+        rescue AuthorizationException
+          raise
+        rescue DatabaseDoesNotExistException => e
+          RavenDB.logger.warn(e)
+          # Will happen on all node in the cluster,
+          # so errors immediately
+          @_last_known_urls = initial_urls
+          raise e
+        rescue StandardError => e
+          RavenDB.logger.warn(e)
+          if initial_urls.empty?
             @_last_known_urls = initial_urls
-            raise e
-          rescue StandardError => e
-            RavenDB.logger.warn(e)
-            if initial_urls.empty?
-              @_last_known_urls = initial_urls
-              raise RuntimeError.new("Cannot get topology from server: " + url, e)
-            end
-
-            list[url] = e
-
-            false
+            raise RuntimeError.new("Cannot get topology from server: #{url}", e)
           end
+
+          list[url] = e
+
+          false
         end
 
         topology = Topology.new(@_topology_etag)
@@ -203,7 +201,7 @@ module RavenDB
       new(database_name: database,
           without_topology: false,
           initial_urls: urls.clone,
-          auth_options: auth_options)
+          auth_options:)
     end
 
     def self.create_for_single_node(url, database = nil, auth_options = nil, disable_configuration_updates: false)
@@ -213,8 +211,8 @@ module RavenDB
           without_topology: true,
           single_node_topology: topology,
           topology_etag: -2,
-          auth_options: auth_options,
-          disable_configuration_updates: disable_configuration_updates
+          auth_options:,
+          disable_configuration_updates:
          )
     end
 
@@ -263,12 +261,13 @@ module RavenDB
       return false unless command.read_request?
       return false unless command.response_type == :object
       return false if chosen_node.nil?
+
       true
     end
 
     def throw_failed_to_contact_all_nodes(command, request, e, timeout_exception)
-      message = "Tried to send #{command.class} request via #{request.method} #{request.uri} to all configured nodes in the topology, " \
-        " all of them seem to be down or not responding. I've tried to access the following nodes: "
+      message = "Tried to send #{command.class} request via #{request.method} #{request.uri} to all configured nodes in the topology,  " \
+                "all of them seem to be down or not responding. I've tried to access the following nodes: "
 
       message += @_node_selector.topology.nodes.map(&:url).join(", ") if @_node_selector
 
@@ -276,7 +275,7 @@ module RavenDB
         message += "\nI was able to fetch #{@_topology_taken_from_node.database} topology from #{@_topology_taken_from_node.url}.\n"
         if @_node_selector
           nodes = @_node_selector.topology.nodes.map { |n| "(url: #{n.url}, clusterTag: #{n.cluster_tag}, serverRole: #{n.server_role})" }.join(", ")
-          message += "Fetched topology: " + nodes
+          message += "Fetched topology: #{nodes}"
         end
       end
 
@@ -300,6 +299,7 @@ module RavenDB
         raise AuthorizationException, "Forbidden access to #{chosen_node.database}@#{chosen_node.url}, #{request.method} #{request.uri}"
       when Net::HTTPGone # request not relevant for the chosen node - the database has been moved to a different one
         return false unless should_retry
+
         update_topology_async(node: chosen_node, force_update: true).value!
         current_node, current_index = choose_node_for_request(command, session_info)
         execute(current_node, current_index, command, false, session_info)
@@ -323,13 +323,13 @@ module RavenDB
       if chosen_node.nil?
         if topology_update&.fulfilled? || @_disable_topology_updates
           current_node, current_index = choose_node_for_request(command, session_info)
-          return execute(command, chosen_node: current_node, node_index: current_index, should_retry: should_retry, session_info: session_info)
+          return execute(command, chosen_node: current_node, node_index: current_index, should_retry:, session_info:)
         else
-          return unlikely_execute(command: command, topology_update: topology_update, session_info: session_info)
+          return unlikely_execute(command:, topology_update:, session_info:)
         end
       end
 
-      request = create_request(node: chosen_node, command: command)
+      request = create_request(node: chosen_node, command:)
       cached_change_vector = Reference.new
       cached_value = Reference.new
       cached_item = get_from_cache(command, request.path, cached_change_vector, cached_value)
@@ -359,6 +359,7 @@ module RavenDB
                    end
       rescue *ALL_NET_HTTP_ERRORS => e
         raise e unless should_retry
+
         unless handle_server_down(request.path, chosen_node, node_index, command, request, response, e, session_info)
           throw_failed_to_contact_all_nodes(command, request, e, nil)
         end
@@ -384,6 +385,7 @@ module RavenDB
             if command.failed_nodes.empty?
               raise "Received unsuccessful response and couldn't recover from it. Also, no record of exceptions per failed nodes. This is weird and should not happen."
             end
+
             if command.failed_nodes.size == 1
               values = command.failed_nodes.values
               if values.count > 0
@@ -394,7 +396,7 @@ module RavenDB
           end
           return
         end
-        command.process_response(@cache, response, request.path, conventions: conventions)
+        command.process_response(@cache, response, request.path, conventions:)
         @_last_returned_response = Date.new
       ensure
         if refresh_topology || refresh_client_configuration
@@ -423,11 +425,13 @@ module RavenDB
         @_disable_client_configuration_updates = true
         begin
           return if @_disposed
+
           command = GetClientConfigurationOperation::GetClientConfigurationCommand.new
           current_index, current_node = choose_node_for_request(command, nil)
           execute(command, chosen_node: current_node, node_index: current_index)
           result = command.result
           return if result.nil?
+
           @conventions.update_from(result.configuration)
           @client_configuration_etag = result.etag
         ensure
@@ -468,7 +472,7 @@ module RavenDB
               chosen_node: current_node,
               node_index: current_index,
               should_retry: true,
-              session_info:  session_info)
+              session_info:)
     end
 
     def choose_node_for_request(cmd, session_info)
@@ -478,11 +482,11 @@ module RavenDB
 
       case @_read_balance_behavior
       when :none
-        return @_node_selector.preferred_node_and_index
+        @_node_selector.preferred_node_and_index
       when :round_robin
-        return @_node_selector.node_by_session_id(!session_info.nil? ? session_info.get_session_id : 0)
+        @_node_selector.node_by_session_id(session_info.nil? ? 0 : session_info.get_session_id)
       when :fastest_node
-        return @_node_selector.fastest_node
+        @_node_selector.fastest_node
       else
         raise ArgumentError
       end
@@ -669,5 +673,5 @@ module RavenDB
     end
   end
 
-  require_relative "../ravendb/utils/concurrent_hash_map.rb"
+  require_relative "../ravendb/utils/concurrent_hash_map"
 end

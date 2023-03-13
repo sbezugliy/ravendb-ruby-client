@@ -23,9 +23,7 @@ module RavenDB
   end
 
   class ClusterTopologyResponse
-    attr_accessor :leader
-    attr_accessor :node_tag
-    attr_accessor :topology
+    attr_accessor :leader, :node_tag, :topology
 
     def self.from_json(json)
       response = new
@@ -37,11 +35,7 @@ module RavenDB
   end
 
   class ClusterTopology
-    attr_accessor :last_node_id
-    attr_accessor :topology_id
-    attr_accessor :members
-    attr_accessor :promotables
-    attr_accessor :watchers
+    attr_accessor :last_node_id, :topology_id, :members, :promotables, :watchers
 
     def self.from_json(json)
       response = new

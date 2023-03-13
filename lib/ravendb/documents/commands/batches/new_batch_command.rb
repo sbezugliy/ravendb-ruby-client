@@ -1,8 +1,6 @@
 module RavenDB
   class NewBatchCommand < RavenCommand
-    attr_reader :commands
-    attr_reader :options
-    attr_reader :conventions
+    attr_reader :commands, :options, :conventions
 
     def initialize(conventions, commands, options = nil)
       super()
@@ -11,8 +9,10 @@ module RavenDB
       @conventions = conventions
       raise ArgumentError, "conventions cannot be null" if conventions.nil?
       raise ArgumentError, "commands cannot be null" if commands.nil?
+
       commands.each do |command|
         next unless command.is_a?(PutAttachmentCommandData)
+
         # TODO
         put_attachment_command_data = command
         @_attachment_streams = LinkedHashSet.new if @_attachment_streams.nil?
@@ -44,7 +44,7 @@ module RavenDB
         name_counter = 1
         @_attachment_streams.each do |stream|
           input_stream_body = InputStreamBody.new(stream, nil)
-          part = form_body_part_builder.create(("attachment" + name_counter += 1), input_stream_body).add_field("Command-Type", "AttachmentStream").build
+          part = form_body_part_builder.create("attachment#{name_counter += 1}", input_stream_body).add_field("Command-Type", "AttachmentStream").build
           entity_builder.add_part(part)
         end
         request.entity = entity_builder.build
@@ -63,12 +63,14 @@ module RavenDB
       if response.nil?
         raise IllegalStateException, "Got null response from the server after doing a batch, something is very wrong. Probably a garbled response."
       end
+
       @result = @mapper.read_value(response, JsonArrayResult)
     end
 
     def append_options
       options = {}
       return if @options.nil?
+
       if @options.wait_for_replicas?
         options["waitForReplicasTimeout"] = time_utils.duration_to_time_span(@options.wait_for_replicas_timeout)
         if @options.throw_on_timeout_in_wait_for_replicas?
@@ -83,7 +85,7 @@ module RavenDB
           options["waitForSpecificIndex"] = specific_index
         end
       end
-      "?" + URI.encode_www_form(options)
+      "?#{URI.encode_www_form(options)}"
     end
 
     def read_request?

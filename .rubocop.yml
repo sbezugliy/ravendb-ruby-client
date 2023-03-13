@@ -2,7 +2,8 @@ inherit_from: .rubocop_todo.yml
 require: rubocop-rspec
 
 AllCops:
-  TargetRubyVersion: 2.4
+  NewCops: enable
+  TargetRubyVersion: 3.2
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes
@@ -10,7 +11,7 @@ Style/StringLiterals:
 Style/IfUnlessModifier:
   Enabled: false
 
-Layout/IndentHash:
+Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
 
 Style/Documentation:

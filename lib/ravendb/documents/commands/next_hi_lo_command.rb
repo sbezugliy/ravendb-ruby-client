@@ -7,6 +7,7 @@ module RavenDB
       if identity_parts_separator.nil?
         raise ArgumentError, "identityPartsSeparator cannot be null"
       end
+
       @_tag = tag
       @_last_batch_size = last_batch_size
       @_last_range_at = last_range_at
@@ -28,7 +29,7 @@ module RavenDB
     end
 
     def parse_response(json, from_cache:, conventions:)
-      @mapper.read_value(json, HiLoResult, conventions: conventions)
+      @mapper.read_value(json, HiLoResult, conventions:)
     end
 
     def read_request?

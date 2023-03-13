@@ -1,15 +1,15 @@
 RSpec.describe RavenDB::QueryCommand, database: true do
   before do
     index_map =
-      "from doc in docs.Testings "\
-      "select new{"\
-      "Name = doc.Name,"\
+      "from doc in docs.Testings " \
+      "select new{" \
+      "Name = doc.Name," \
       "DocNumber = doc.DocNumber} "
 
-    index_sort = RavenDB::IndexDefinition.new(name: "Testing_Sort", index_map: index_map)
+    index_sort = RavenDB::IndexDefinition.new(name: "Testing_Sort", index_map:)
     store.operations.send(RavenDB::PutIndexesOperation.new(index_sort))
 
-    (0..99).each do |i|
+    100.times do |i|
       document = {
         "Name" => "test#{i}",
         "DocNumber" => i,
@@ -17,7 +17,7 @@ RSpec.describe RavenDB::QueryCommand, database: true do
           "@collection" => "Testings"
         }
       }
-      request_executor.execute(RavenDB::PutDocumentCommand.new(id: "Testings/#{i}", document: document))
+      request_executor.execute(RavenDB::PutDocumentCommand.new(id: "Testings/#{i}", document:))
     end
 
     request_executor.execute(RavenDB::QueryCommand.new(store.conventions, RavenDB::IndexQuery.new("from index 'Testing_Sort'", {}, nil, nil, wait_for_non_stale_results: true)))
@@ -40,7 +40,7 @@ RSpec.describe RavenDB::QueryCommand, database: true do
     request_executor.execute(command)
     response = command.result
     expect(response).to include("Results")
-    expect(response["Results"]).to be_kind_of(Array)
+    expect(response["Results"]).to be_a(Array)
     expect(response["Results"].length).not_to be < 100
   end
 
@@ -66,7 +66,7 @@ RSpec.describe RavenDB::QueryCommand, database: true do
     request_executor.execute(query_command)
     response = query_command.result
     expect(response).to include("Results")
-    expect(response["Results"]).to be_kind_of(Array)
+    expect(response["Results"]).to be_a(Array)
     expect(response["Results"].length).to eq(0)
   end
 

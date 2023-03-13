@@ -11,11 +11,10 @@ module RavenDB
     include Observable
 
     attr_reader :number_of_requests_in_session
-    attr_reader :documents_by_id
-    attr_reader :documents_by_entity
+    attr_reader :documents_by_id, :documents_by_entity
 
     def initialize(db_name, document_store, id, request_executor, conventions:)
-      super(conventions: conventions)
+      super(conventions:)
 
       @advanced = nil
       @database = db_name
@@ -80,14 +79,14 @@ module RavenDB
       @number_of_requests_in_session += 1
 
       unless @number_of_requests_in_session <= max_requests
-        raise "The maximum number of requests (#{max_requests}) allowed for this session has been reached. Raven limits the number "\
-  "of remote calls that a session is allowed to make as an early warning system. Sessions are expected to "\
-  "be short lived, and Raven provides facilities like batch saves (call save_changes only once) "\
-  "You can increase the limit by setting RavenDB::DocumentConventions."\
-  "max_number_of_request_per_session, but it is advisable "\
-  "that you'll look into reducing the number of remote calls first, "\
-  "since that will speed up your application significantly and result in a"\
-  "more responsive application."
+        raise "The maximum number of requests (#{max_requests}) allowed for this session has been reached. Raven limits the number " \
+              "of remote calls that a session is allowed to make as an early warning system. Sessions are expected to " \
+              "be short lived, and Raven provides facilities like batch saves (call save_changes only once) " \
+              "You can increase the limit by setting RavenDB::DocumentConventions." \
+              "max_number_of_request_per_session, but it is advisable " \
+              "that you'll look into reducing the number of remote calls first, " \
+              "since that will speed up your application significantly and result in a" \
+              "more responsive application."
       end
     end
 
@@ -160,7 +159,7 @@ module RavenDB
         @raw_entities_and_metadata[document] = info
       end
 
-      {document: document, is_new: is_new}
+      {document:, is_new:}
     end
 
     def prepare_document_id_before_store(document, id = nil)
@@ -175,10 +174,8 @@ module RavenDB
         conventions.set_id_on_document(document, document_id)
       end
 
-      if !document_id.nil? && !document_id.end_with?("/") && @documents_by_id.key?(document_id)
-        unless @documents_by_id[document_id].eql?(document)
-          raise NonUniqueObjectException, "Attempted to associate a different object with id #{document_id}"
-        end
+      if !document_id.nil? && !document_id.end_with?("/") && @documents_by_id.key?(document_id) && !@documents_by_id[document_id].eql?(document)
+        raise NonUniqueObjectException, "Attempted to associate a different object with id #{document_id}"
       end
 
       if document_id.nil? || document_id.end_with?("/")
@@ -201,8 +198,8 @@ module RavenDB
         raw_entity = conventions.convert_to_raw_entity(document)
 
         if (DocumentConventions.default_use_optimistic_concurrency &&
-          (ConcurrencyCheckMode::DISABLED != info[:concurrency_check_mode])) ||
-           (ConcurrencyCheckMode::FORCED == info[:concurrency_check_mode])
+          (info[:concurrency_check_mode] != ConcurrencyCheckMode::DISABLED)) ||
+           (info[:concurrency_check_mode] == ConcurrencyCheckMode::FORCED)
           change_vector = info[:change_vector] ||
                           info[:metadata]["@change-vector"] ||
                           conventions.empty_change_vector
@@ -248,15 +245,17 @@ module RavenDB
         command_result = results[index]
 
         next unless Net::HTTP::Put::METHOD.capitalize == command_result["Type"]
+
         document = changes.get_document(index - changes.deferred_commands_count)
 
         next unless @raw_entities_and_metadata.key?(document)
+
         metadata = command_result.except("Type")
         info = @raw_entities_and_metadata[document]
 
         info = info.merge(
           change_vector: command_result["@change-vector"],
-          metadata: metadata,
+          metadata:,
           original_value: conventions.convert_to_raw_entity(document).deep_dup,
           original_metadata: metadata.deep_dup
         )
@@ -378,7 +377,7 @@ module RavenDB
     def document_query(klass, index_klass: nil, index_name: nil, collection_name: nil, is_map_reduce: false)
       if index_name && collection_name
         raise ArgumentError, "Parameters index_name and collection_name are mutually exclusive." \
-          "Please specify only one of them."
+                             "Please specify only one of them."
       end
 
       if index_klass
@@ -393,7 +392,7 @@ module RavenDB
       DocumentQuery.new(session: self,
                         request_executor: @request_executor,
                         document_type_or_class: klass,
-                        index_name: index_name,
+                        index_name:,
                         collection: collection_name)
     end
 
@@ -421,7 +420,7 @@ module RavenDB
     def load_new(klass, ids)
       single_doc = !ids.is_a?(Array)
       ids = [ids] if single_doc
-      ret = load_internal(klass: klass, ids: ids, includes: nil)
+      ret = load_internal(klass:, ids:, includes: nil)
       ret = ret.values.first if single_doc
       ret
     end
@@ -430,6 +429,7 @@ module RavenDB
       save_change_operation = BatchOperation.new(self)
       command = save_change_operation.create_request
       return if command.nil?
+
       @request_executor.execute(command, session_info: @session_info)
       save_change_operation.result = command.result
       save_change_operation

@@ -4,7 +4,7 @@ require "active_support/cache/memory_store"
 module RavenDB
   class HttpCache
     def initialize(size:)
-      @items = ActiveSupport::Cache::MemoryStore.new(size: size)
+      @items = ActiveSupport::Cache::MemoryStore.new(size:)
     end
 
     def set(url, change_vector, result)
@@ -51,6 +51,7 @@ module RavenDB
         if @item.nil?
           return Float::INFINITY
         end
+
         DateTime.now - item.lastServerUpdate
       end
 

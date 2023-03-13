@@ -7,7 +7,7 @@ module RavenDB
     end
 
     def generate_document_id(db_name, entity)
-      db = (!db_name.nil? ? db_name : @store.database)
+      db = (db_name.nil? ? @store.database : db_name)
       generator = @_generators.compute_if_absent(db) do |x|
         generate_multi_type_hi_lo_func(x)
       end
@@ -19,7 +19,7 @@ module RavenDB
     end
 
     def return_unused_range
-      @_generators.values.each(&:return_unused_range)
+      @_generators.each_value(&:return_unused_range)
     end
   end
 end

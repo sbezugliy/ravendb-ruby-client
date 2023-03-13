@@ -79,7 +79,7 @@ module RavenDB
 
       if projections.empty? && projections.size != fields_to_fetch.size
         raise ArgumentError,
-              "Length of projections must be the "\
+              "Length of projections must be the " \
               "same as length of fields to fetch."
       end
 
@@ -403,105 +403,105 @@ module RavenDB
 
     def self.equals(field_name, parameter_name, exact = false)
       new(
-        field_name: field_name,
-        parameter_name: parameter_name,
-        exact: exact,
+        field_name:,
+        parameter_name:,
+        exact:,
         where_operator: WhereOperator::EQUALS
       )
     end
 
     def self.not_equals(field_name, parameter_name, exact = false)
       new(
-        field_name: field_name,
-        parameter_name: parameter_name,
-        exact: exact,
+        field_name:,
+        parameter_name:,
+        exact:,
         where_operator: WhereOperator::NOT_EQUALS
       )
     end
 
     def self.starts_with(field_name, parameter_name)
       new(
-        field_name: field_name,
-        parameter_name: parameter_name,
+        field_name:,
+        parameter_name:,
         where_operator: WhereOperator::STARTS_WITH
       )
     end
 
     def self.ends_with(field_name, parameter_name)
       new(
-        field_name: field_name,
-        parameter_name: parameter_name,
+        field_name:,
+        parameter_name:,
         where_operator: WhereOperator::ENDS_WITH
       )
     end
 
     def self.greater_than(field_name, parameter_name, exact = false)
       new(
-        field_name: field_name,
-        parameter_name: parameter_name,
-        exact: exact,
+        field_name:,
+        parameter_name:,
+        exact:,
         where_operator: WhereOperator::GREATER_THAN
       )
     end
 
     def self.greater_than_or_equal(field_name, parameter_name, exact = false)
       new(
-        field_name: field_name,
-        parameter_name: parameter_name,
-        exact: exact,
+        field_name:,
+        parameter_name:,
+        exact:,
         where_operator: WhereOperator::GREATER_THAN_OR_EQUAL
       )
     end
 
     def self.less_than(field_name, parameter_name, exact = false)
       new(
-        field_name: field_name,
-        parameter_name: parameter_name,
-        exact: exact,
+        field_name:,
+        parameter_name:,
+        exact:,
         where_operator: WhereOperator::LESS_THAN
       )
     end
 
     def self.less_than_or_equal(field_name, parameter_name, exact = false)
       new(
-        field_name: field_name,
-        parameter_name: parameter_name,
-        exact: exact,
+        field_name:,
+        parameter_name:,
+        exact:,
         where_operator: WhereOperator::LESS_THAN_OR_EQUAL
       )
     end
 
     def self.in(field_name, parameter_name, exact = false)
       new(
-        field_name: field_name,
-        parameter_name: parameter_name,
-        exact: exact,
+        field_name:,
+        parameter_name:,
+        exact:,
         where_operator: WhereOperator::IN
       )
     end
 
     def self.all_in(field_name, parameter_name)
       new(
-        field_name: field_name,
-        parameter_name: parameter_name,
+        field_name:,
+        parameter_name:,
         where_operator: WhereOperator::ALL_IN
       )
     end
 
     def self.between(field_name, from_parameter_name, to_parameter_name, exact = false)
       new(
-        field_name: field_name,
-        from_parameter_name: from_parameter_name,
-        to_parameter_name: to_parameter_name,
-        exact: exact,
+        field_name:,
+        from_parameter_name:,
+        to_parameter_name:,
+        exact:,
         where_operator: WhereOperator::BETWEEN
       )
     end
 
     def self.search(field_name, parameter_name, op = SearchOperator::AND)
       new(
-        field_name: field_name,
-        parameter_name: parameter_name,
+        field_name:,
+        parameter_name:,
         search_operator: op,
         where_operator: WhereOperator::SEARCH
       )
@@ -509,58 +509,58 @@ module RavenDB
 
     def self.lucene(field_name, parameter_name)
       new(
-        field_name: field_name,
-        parameter_name: parameter_name,
+        field_name:,
+        parameter_name:,
         where_operator: WhereOperator::LUCENE
       )
     end
 
     def self.exists(field_name)
       new(
-        field_name: field_name,
+        field_name:,
         where_operator: WhereOperator::EXISTS
       )
     end
 
     def self.within(field_name, shape, distance_error_pct)
       new(
-        field_name: field_name,
+        field_name:,
         where_shape: shape,
-        distance_error_pct: distance_error_pct,
+        distance_error_pct:,
         where_operator: WhereOperator::WITHIN
       )
     end
 
     def self.contains(field_name, shape, distance_error_pct)
       new(
-        field_name: field_name,
+        field_name:,
         where_shape: shape,
-        distance_error_pct: distance_error_pct,
+        distance_error_pct:,
         where_operator: WhereOperator::CONTAINS
       )
     end
 
     def self.disjoint(field_name, shape, distance_error_pct)
       new(
-        field_name: field_name,
+        field_name:,
         where_shape: shape,
-        distance_error_pct: distance_error_pct,
+        distance_error_pct:,
         where_operator: WhereOperator::DISJOINT
       )
     end
 
     def self.intersects(field_name, shape, distance_error_pct)
       new(
-        field_name: field_name,
+        field_name:,
         where_shape: shape,
-        distance_error_pct: distance_error_pct,
+        distance_error_pct:,
         where_operator: WhereOperator::INTERSECTS
       )
     end
 
     def self.regex(field_name, parameter)
       new(
-        field_name: field_name,
+        field_name:,
         where_operator: WhereOperator::REGEX,
         parameter_name: parameter
       )

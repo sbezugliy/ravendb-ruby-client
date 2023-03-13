@@ -78,7 +78,7 @@ Naming/MemoizedInstanceVariableName:
   Enabled: false
 
 # rubocop 0.53.0
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   Enabled: false
 
 # rubocop-rspec

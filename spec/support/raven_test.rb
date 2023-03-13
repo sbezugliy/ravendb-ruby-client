@@ -3,8 +3,8 @@ require "rainbow"
 module RavenTest
   DEFAULT_URL = ENV["URL"] || "http://localhost:8080"
   DEFAULT_DATABASE = ENV["DATABASE"] || "NorthWindTest"
-  CERT_FILE = ENV["CERTIFICATE"]
-  CERT_PASSPHRASE = ENV["PASSPHRASE"]
+  CERT_FILE = ENV.fetch("CERTIFICATE", nil)
+  CERT_PASSPHRASE = ENV.fetch("PASSPHRASE", nil)
 
   CONSUME_LOG = ENV["LOG"] != "1"
 

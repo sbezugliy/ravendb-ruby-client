@@ -8,7 +8,7 @@ module RavenDB
       @metadata = metadata
     end
 
-    def to_json
+    def to_json(*_args)
       json = super()
       document = @document
 

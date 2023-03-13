@@ -1,8 +1,6 @@
 module RavenDB
   class RavenCommandData
-    attr_reader :id
-    attr_reader :type
-    attr_reader :name
+    attr_reader :id, :type, :name
 
     def initialize(id, change_vector)
       @id = id
@@ -14,7 +12,7 @@ module RavenDB
       @id
     end
 
-    def to_json
+    def to_json(*_args)
       {
         "Type" => @type,
         "Id" => @id,

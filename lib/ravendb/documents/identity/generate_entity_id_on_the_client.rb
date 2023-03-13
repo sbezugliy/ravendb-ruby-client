@@ -11,6 +11,7 @@ module RavenDB
 
     def try_get_id_from_instance(entity, id_holder)
       raise ArgumentError, "Entity cannot be null" if entity.nil?
+
       identity_property = identity_property(entity.class)
       unless identity_property.nil?
         value = entity.send(identity_property)
@@ -31,6 +32,7 @@ module RavenDB
       if !id.nil? && id.start_with?("/")
         raise "Cannot use value '#{id}' as a document id because it begins with a '/'"
       end
+
       id
     end
 
@@ -44,6 +46,7 @@ module RavenDB
       entity_type = entity.class
       identity_property = @_conventions.identity_property(entity_type)
       return if identity_property.nil?
+
       set_property_or_field(entity, identity_property, id)
     end
 

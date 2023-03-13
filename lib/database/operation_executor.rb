@@ -41,9 +41,9 @@ module RavenDB
 
         case response["Status"]
         when OperationStatus::COMPLETED
-          return {
+          {
             status: response["Status"],
-            response: response
+            response:
           }
         when OperationStatus::FAULTED
           exception = ExceptionsFactory.create_from(response["Result"])
@@ -52,19 +52,19 @@ module RavenDB
             exception = RuntimeError.new(response["Result"]["Error"])
           end
 
-          return {
+          {
             status: response["Status"],
-            exception: exception
+            exception:
           }
         else
-          return {
+          {
             status: OperationStatus::RUNNING
           }
         end
-      rescue StandardError => exception
-        return {
+      rescue StandardError => e
+        {
           status: OperationStatus::FAULTED,
-          exception: exception
+          exception: e
         }
       end
     end
@@ -97,9 +97,9 @@ module RavenDB
 
       if operation.is_a?(Operation)
         begin
-          command = operation.get_command(conventions: conventions, store: store)
-        rescue StandardError => exception
-          error_message = "Can't instantiate command required for run operation: #{exception.message}"
+          command = operation.get_command(conventions:, store:)
+        rescue StandardError => e
+          error_message = "Can't instantiate command required for run operation: #{e.message}"
         end
       end
 

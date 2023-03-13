@@ -16,6 +16,7 @@ module RavenDB
 
     def self.document?(object)
       return false if object.is_a?(Class)
+
       object.is_a?(Object) && (!!object != object)
       BASIC_TYPES.all? do |basic_type|
         !object.is_a?(basic_type)
@@ -23,8 +24,8 @@ module RavenDB
     end
 
     def self.stringify_date(datetime)
-      invalid_date_message = "Invalid parameter passed to RavenDB"\
-        "::TypeUtilities::stringify_date. It should be instance of DateTime"
+      invalid_date_message = "Invalid parameter passed to RavenDB" \
+                             "::TypeUtilities::stringify_date. It should be instance of DateTime"
 
       raise invalid_date_message unless
           datetime.is_a?(DateTime) || datetime.is_a?(Date)

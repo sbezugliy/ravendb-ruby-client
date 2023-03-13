@@ -46,7 +46,7 @@ RSpec.describe RavenDB::DocumentStore do
       HDq91ZHJhEQ7Hj3kUdpAymgN+OShcelJbmRlw3PUxNPmAYvDxJD9lL35YhwkCKqO
       j32qw8tKsUBMO5zmCC6+IapqdBUr0F+BxJazO+mlQu2o9Ipas88=
       -----END RSA PRIVATE KEY-----
-CERTIFICATE
+    CERTIFICATE
   end
 
   it "raises not supported exception when trying to connect to secured server without auth options" do

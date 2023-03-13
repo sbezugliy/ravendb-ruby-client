@@ -5,10 +5,8 @@ module RavenDB
       @self_lock = Mutex.new
     end
 
-    def synchronized
-      @self_lock.synchronize do
-        yield
-      end
+    def synchronized(&)
+      @self_lock.synchronize(&)
     end
 
     def put_if_absent(index, value)

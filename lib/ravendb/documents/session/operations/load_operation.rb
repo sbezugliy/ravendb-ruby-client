@@ -61,23 +61,24 @@ module RavenDB
 
       doc = @session.documents_by_id[id]
       unless doc.nil?
-        return @session.track_entity(klass: klass, document_found: doc)
+        return @session.track_entity(klass:, document_found: doc)
       end
 
       doc = @session.included_documents_by_id[id]
       unless doc.nil?
-        return @session.track_entity(klass: klass, document_found: doc)
+        return @session.track_entity(klass:, document_found: doc)
       end
 
       nil
     end
 
     def get_documents(klass)
-      @ids.map { |id| [id, get_document(klass, id)] }.to_h
+      @ids.to_h { |id| [id, get_document(klass, id)] }
     end
 
     def result=(result)
       return if result.nil?
+
       @session.register_includes(result["Includes"])
       result["Results"].compact.each do |document|
         new_document_info = DocumentInfo.new(document)

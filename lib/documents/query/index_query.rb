@@ -1,7 +1,7 @@
 module RavenDB
   class IndexQuery
     DEFAULT_TIMEOUT = 15 * 1000
-    DEFAULT_PAGE_SIZE = 2**31 - 1
+    DEFAULT_PAGE_SIZE = (2**31) - 1
 
     attr_accessor :start, :page_size
     attr_reader :query, :query_parameters, :wait_for_non_stale_results,
@@ -41,7 +41,7 @@ module RavenDB
       Digest::SHA256.hexdigest(buffer)
     end
 
-    def to_json
+    def to_json(*_args)
       json = {
         "Query" => @query,
         "QueryParameters" => @query_parameters

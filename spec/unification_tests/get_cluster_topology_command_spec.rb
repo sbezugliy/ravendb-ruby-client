@@ -6,7 +6,7 @@ RSpec.describe RavenDB::GetClusterTopologyCommand, database: true, rdbc_171: tru
   let :executor do
     RavenDB::RequestExecutor.new(initial_urls: store.urls,
                                  database_name: store.database,
-                                 conventions: conventions,
+                                 conventions:,
                                  auth_options: store.auth_options)
   end
 
@@ -21,7 +21,7 @@ RSpec.describe RavenDB::GetClusterTopologyCommand, database: true, rdbc_171: tru
     expect(result.leader).not_to be_empty
     expect(result.node_tag).not_to be_empty
 
-    topology = result.topology()
+    topology = result.topology
 
     expect(topology).not_to be_nil
     expect(topology.topology_id).not_to be_nil

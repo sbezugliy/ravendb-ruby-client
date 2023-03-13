@@ -1,10 +1,9 @@
 require "date"
-require_relative "./lib/ravendb/version.rb"
+require_relative "./lib/ravendb/version"
 
 Gem::Specification.new do |spec|
   spec.name        = "ravendb"
   spec.version     = RavenDB::VERSION
-  spec.date        = Date.today.to_s
   spec.summary     = "RavenDB"
   spec.description = "RavenDB client for Ruby"
   spec.authors     = ["Hibernating Rhinos"]
@@ -17,13 +16,14 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency("concurrent-ruby")
   spec.add_runtime_dependency("openssl")
 
-  spec.add_development_dependency("rainbow", "~> 3.0.0")
-  spec.add_development_dependency("rake", "~> 12.3.0")
-  spec.add_development_dependency("rspec", "~> 3.7.0")
-  spec.add_development_dependency("rubocop", "~> 0.53.0")
-  spec.add_development_dependency("rubocop-rspec", "~> 1.24.0")
-  spec.add_development_dependency("simplecov", "~> 0.15.1")
+  spec.add_development_dependency("rainbow", "~> 3.1.1")
+  spec.add_development_dependency("rake", "~> 13.0.6")
+  spec.add_development_dependency("rspec", "~> 3.12.0")
+  spec.add_development_dependency("rubocop", "~> 1.48.1")
+  spec.add_development_dependency("rubocop-rspec", "~> 2.19.0")
+  spec.add_development_dependency("simplecov", "~> 0.22.0")
 
   spec.homepage = "http://ravendb.net"
   spec.license  = "MIT"
+  spec.metadata["rubygems_mfa_required"] = "true"
 end

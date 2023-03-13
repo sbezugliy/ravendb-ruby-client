@@ -9,7 +9,7 @@ module RavenDB
       @encrypted = encrypted
     end
 
-    def to_json
+    def to_json(*_args)
       {
         "DatabaseName" => @database_id,
         "Disabled" => @disabled,

@@ -19,7 +19,7 @@ RSpec.describe RavenDB::DocumentStore, database: true do
     foo = Foo.new(id, "test", 20)
 
     store.open_session do |session|
-      session.store(foo, id: id)
+      session.store(foo, id:)
       session.save_changes
     end
 
@@ -38,7 +38,7 @@ RSpec.describe RavenDB::DocumentStore, database: true do
       session.store(product)
       session.save_changes
 
-      expect(/^products\/\d+(\-\w)?$/ =~ product.id).to be_truthy
+      expect(/^products\/\d+(-\w)?$/ =~ product.id).to be_truthy
     end
 
     store.open_session do |session|
@@ -64,10 +64,10 @@ RSpec.describe RavenDB::DocumentStore, database: true do
       cached_documents = session.instance_variable_get("@documents_by_id")
       info = cached_documents[product.id]
 
-      expect(product.id.nil?).to eq(false)
-      expect(product.id.empty?).to eq(false)
+      expect(product.id.nil?).to be(false)
+      expect(product.id.empty?).to be(false)
       expect(product.id).to eq(info.metadata["@id"])
-      expect(info.document.key?("id")).to eq(false)
+      expect(info.document.key?("id")).to be(false)
     end
   end
 

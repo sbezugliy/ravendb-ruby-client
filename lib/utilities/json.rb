@@ -82,12 +82,12 @@ module RavenDB
             original_attribute: key,
             serialized_attribute: key_mapper ? key_mapper[key] : key,
             original_value: value,
-            serialized_value: json_to_variable(value, key, mappings, conventions, parent_path, key_mapper: key_mapper),
+            serialized_value: json_to_variable(value, key, mappings, conventions, parent_path, key_mapper:),
             attribute_path: build_path(key, parent_path),
-            source: source,
-            target: target,
+            source:,
+            target:,
             metadata: current_metadata,
-            nested_object_types: nested_object_types
+            nested_object_types:
           }
 
           conventions&.serializers&.each do |serializer|
@@ -134,9 +134,9 @@ module RavenDB
             original_attribute: json_property,
             serialized_attribute: json_property,
             original_value: variable_value,
-            serialized_value: variable_to_json(variable_value, json_property, conventions, parent_path, metadata: metadata),
+            serialized_value: variable_to_json(variable_value, json_property, conventions, parent_path, metadata:),
             attribute_path: build_path(json_property, parent_path),
-            source: source,
+            source:,
             metadata: current_metadata
           }
 
@@ -165,7 +165,7 @@ module RavenDB
         end
 
         if json_value.is_a?(Hash)
-          document = json_to_document(json_value, nested_object_type, conventions, build_path(key, parent_path), key_mapper: key_mapper)
+          document = json_to_document(json_value, nested_object_type, conventions, build_path(key, parent_path), key_mapper:)
 
           unless document.nil?
             return document
@@ -176,7 +176,7 @@ module RavenDB
           documents = []
 
           if json_value.all? do |json_value_item|
-               document = json_to_document(json_value_item, nested_object_type, conventions, build_path(key, parent_path), key_mapper: key_mapper)
+               document = json_to_document(json_value_item, nested_object_type, conventions, build_path(key, parent_path), key_mapper:)
                was_converted = !document.nil?
 
                unless document.nil?
@@ -225,7 +225,7 @@ module RavenDB
           nested_object_type = Object.const_get(nested_object_type)
         end
 
-        return from_json(nested_object_type.new, json_value, nested_object_metadata, nil, conventions, parent_path, key_mapper: key_mapper)
+        return from_json(nested_object_type.new, json_value, nested_object_metadata, nil, conventions, parent_path, key_mapper:)
       end
 
       nil
@@ -258,14 +258,14 @@ module RavenDB
         if TypeUtilities.document?(variable_value)
           store_metadata_type(metadata, parent_path, variable, variable_value.class.name)
           store_object_type(variable_value)
-          return to_json(variable_value, conventions, build_path(variable, parent_path), metadata: metadata)
+          return to_json(variable_value, conventions, build_path(variable, parent_path), metadata:)
         end
 
         if variable_value.is_a?(Hash)
           json = {}
 
           variable_value.each do |key, value|
-            json[key.to_s] = variable_to_json(value, key.to_s, conventions, build_path(variable, parent_path), metadata: metadata)
+            json[key.to_s] = variable_to_json(value, key.to_s, conventions, build_path(variable, parent_path), metadata:)
           end
 
           return json
@@ -275,7 +275,7 @@ module RavenDB
           json = []
 
           variable_value.each do |value|
-            json.push(variable_to_json(value, variable, conventions, parent_path, metadata: metadata))
+            json.push(variable_to_json(value, variable, conventions, parent_path, metadata:))
           end
 
           return json

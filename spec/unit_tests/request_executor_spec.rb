@@ -24,9 +24,9 @@ RSpec.describe RavenDB::RequestExecutor do
     end
 
     {
-      "http://www.example.com"         => "http://www.example.com",
-      "http://www.example.com/"        => "http://www.example.com",
-      "http://www.example.com//"       => "http://www.example.com",
+      "http://www.example.com" => "http://www.example.com",
+      "http://www.example.com/" => "http://www.example.com",
+      "http://www.example.com//" => "http://www.example.com",
       "https://www.example.com:1010//" => "https://www.example.com:1010"
     }.each do |base_url, clean_url|
       it "cleans URL #{base_url} as #{clean_url}" do
@@ -41,7 +41,7 @@ RSpec.describe RavenDB::RequestExecutor do
       ]
 
       expect do
-        RavenDB::RequestExecutor.validate_urls(urls: urls)
+        RavenDB::RequestExecutor.validate_urls(urls:)
       end.to raise_error(RuntimeError, "The url 'http://example.com' is using HTTP, but other urls are using HTTPS, and mixing of HTTP and HTTPS is not allowed.")
     end
 
